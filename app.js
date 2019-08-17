@@ -13,7 +13,7 @@ class pokemons {
     constructor(name,types,type2){
         this.name = name
         this.type = types
-        this.type2 = null
+        this.type2 = type2
         this.id = null
     }
     AddTyes2(type){
@@ -33,6 +33,9 @@ function isSufficientPameter(v){
     return  v!== undefined || V!== null || V!== ''
 }
 
+function getPokemonById(id){
+    return poke[id-1] !== undefined && poke[id-1] !== null
+}
 
 let poke = []
 poke.push(CreatePokemon('Mega Charizard X','Fire'))
@@ -66,26 +69,43 @@ app.get('/pokemons/:id', (req, res) => {
     let p = poke[id - 1]
     res.send(p)
 })
-app.put('/pokemons/:id', (req, res) => {
+app.put('/pokemon/:id', (req, res) => {
     
-    if (!isSufficientPameter(req.body.type2)){
-        res.status(400).send({error :'Insufficien paraments: name and type are required paramenter '})
-        return
-    }
-    if (!isSufficientPameter(id)){
+    // if (!isSufficientPameter(req.body.type2)){
+    //     res.status(400).send({error :'Insufficien paraments: name and type are required paramenter '})
+    //     return
+    // }
+    // if (!isSufficientPameter(req.params.id)){
+    //     res.status(400).send({error :'Insufficien paraments: name and type are required paramenter '})
+    //     return
+    // }
+    let id = req.params.id
+    let p = poke[id - 1]
+    // if (!getPokemonById(id)){
+    //     res.status(400).send({error :'Canot update pokemon: Pokemon is not fount'})
+    //     return
+    // }
+
+    p.type2 = p.body.type2
+    console.log(p.type2)
+    poke[id-1] = p
+    res.sendStatus(200)   
+})
+
+app.delete('/pokemom/:id' ,(req,res) => {
+
+    if (!isSufficientPameter(req.params.id)){
         res.status(400).send({error :'Insufficien paraments: name and type are required paramenter '})
         return
     }
     let id = req.params.id
-    let p = poke[id - 1]
-    if (p === undefined){
-        res.status(400).send({error :'Canot update pokemon: Pokemon is not fount'})
+    if (!getPokemonById(id)){
+        res.status(400).send({error :'Cannot delete pokemon: Pokemon is not found'})
         return
     }
 
-    p.type2 = p.body.type2
-    poke[id-1] = p
-    res.sendStatus(200)   
+    delete poke[id-1]
+    res.sendStatus(204)
 })
 
 app.listen(port, () => console.log(`Pokemon API listen  on port ${port}!`))
